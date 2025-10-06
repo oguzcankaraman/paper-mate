@@ -1,0 +1,33 @@
+# LLM ve RAG
+langchain==0.1.20
+langchain-community==0.0.38
+chromadb==0.4.24
+ollama==0.1.7
+
+# PDF Processing
+pymupdf==1.24.0
+pdfplumber==0.10.4
+
+# NLP
+sentence-transformers==2.6.1
+spacy==3.7.4
+
+# API
+fastapi==0.110.0
+uvicorn==0.28.0
+pydantic==2.6.4
+
+# Frontend May Change
+streamlit==1.32.2
+gradio==4.25.0
+
+# Utilities
+python-dotenv==1.0.1
+loguru==0.7.2
+pytest==8.1.1
+black==24.3.0
+flake8==7.0.0
+
+# Data
+pandas==2.2.1
+numpy==1.26.4
