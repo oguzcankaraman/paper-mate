@@ -8,6 +8,8 @@ from typing_extensions import TypedDict
 from langgraph.graph import START, StateGraph, END
 from langgraph.checkpoint.memory import MemorySaver
 
+from src.rag import find_document
+
 
 class State(TypedDict):
     question: str
@@ -24,7 +26,6 @@ class TestRAG:
         self.app = None
         self.memory = MemorySaver()
 
-
     def get_env(self) -> bool:
         try:
             load_dotenv()
@@ -33,10 +34,8 @@ class TestRAG:
             print(f"Error loading .env file: {e}")
             return False
 
-
     def search_context(self, state: State) -> State:
-        # DB search fonksiyonu bekleniyor
-        documents = [Document(page_content="The sea is a large body of saltwater.")]
+        documents = find_document(state["question"])
         return {"context": documents}
 
     def get_answer(self, state: State) -> State:
@@ -83,7 +82,7 @@ if __name__ == "__main__":
     rag = TestRAG()
 
     # Test sorusu
-    test_question = "What is the sea?"
+    test_question = "Yaş kaç?"
 
     print(f"Question: {test_question}")
     print("-" * 50)
