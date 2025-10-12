@@ -60,7 +60,7 @@ def find_document(query: str) -> Optional[Document]:
     else:
         return None
 
-# fonksiyon kullanımı
+# fonksiyon kullanımı için bir örnek
 search_query = "Yapay zeka uygulamaları"
 found_doc = find_document(search_query)
 
