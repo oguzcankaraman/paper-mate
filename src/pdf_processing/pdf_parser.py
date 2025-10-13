@@ -1,4 +1,5 @@
 import os
+
 from pprint import pprint
 from langchain_community.document_loaders import PyPDFLoader
 from typing import List
@@ -42,6 +43,12 @@ if __name__ == "__main__":
             pprint(doc.metadata)
     else:
         print("❗Hiçbir içerik yüklenemedi.")
+
+
+
+
+
+
 
 
 
