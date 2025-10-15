@@ -6,7 +6,7 @@
 ```bash
 git clone https://github.com/YOUR_USERNAME/papermate.git
 cd papermate
-```
+```g
 2. Kendine bir branch oluştur:
 
 ```bash
