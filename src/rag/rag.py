@@ -39,7 +39,7 @@ class RAGConfig:
     max_retries: int = 3
     timeout: int = 30
 
-class TestRAG:
+class RAG:
     def __init__(self, config: RAGConfig = None, user_id: str = "12345"):
         self.config = config or RAGConfig()
         self.env_loaded = self._get_env()
@@ -138,7 +138,7 @@ class TestRAG:
 
 if __name__ == "__main__":
     # RAG instance oluştur
-    rag = TestRAG()
+    rag = RAG()
 
     # Test sorusu
     test_question = "Yapay zeka etiği neyi amaçlar?"
