@@ -43,12 +43,3 @@ if __name__ == "__main__":
             pprint(doc.metadata)
     else:
         print("❗Hiçbir içerik yüklenemedi.")
-
-
-
-
-
-
-
-
-
