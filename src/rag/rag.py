@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from typing import List, Any, Annotated
 from dotenv import load_dotenv
 
-from langchain.chat_models import init_chat_model
+from langchain_ollama import ChatOllama
 from langchain_core.documents import Document
 from langchain_core.messages import HumanMessage, SystemMessage,BaseMessage
 from typing_extensions import TypedDict
@@ -33,22 +33,18 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class RAGConfig:
-    model_name: str = "gemini-2.5-flash"
-    model_provider: str = "google_genai"
+    model_name: str = "llama3:8b"
     system_prompt: str = "You are a helpful assistant."
     max_retries: int = 3
     timeout: int = 30
 
-class TestRAG:
+class RAG:
     def __init__(self, config: RAGConfig = None, user_id: str = "12345"):
         self.config = config or RAGConfig()
         self.env_loaded = self._get_env()
         if not self.env_loaded:
             raise Exception("Environment variables not loaded.")
-        self.llm = init_chat_model(
-            self.config.model_name,
-            model_provider=self.config.model_provider
-        )
+        self.llm = ChatOllama(model=self.config.model_name)
         self.system_prompt = self.config.system_prompt
         self.app = None
         self.memory = MemorySaver()
@@ -138,7 +134,7 @@ class TestRAG:
 
 if __name__ == "__main__":
     # RAG instance oluştur
-    rag = TestRAG()
+    rag = RAG()
 
     # Test sorusu
     test_question = "Yapay zeka etiği neyi amaçlar?"
