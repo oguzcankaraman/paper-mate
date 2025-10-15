@@ -16,13 +16,19 @@ def splitter(documents:List[Document])-> List[Document]:
     texts = text_splitter.split_documents(documents)
 
     return texts
+
+
+
+
+
 if __name__ == "__main__":
     pdf_path = input("📄 PDF dosya yolunu girin: ").strip().strip('"')
     docs = pdf_parser(pdf_path)
-    texts =splitter(docs)
-    for i,text in enumerate(texts):
+
+    tester = splitter(docs)
+    for i,text in enumerate(tester):
         print(f"\n--- {i + 1} ---")
-        print(texts[i])
+        print(tester[i])
 
 
 
