@@ -1,11 +1,14 @@
 from langchain_core.messages import BaseMessage, AIMessage
-from langchain_ollama import OllamaLLM
+from langchain_ollama import ChatOllama
+
 from typing import List
+
 
 class OllamaClient:
     def __init__(self, model_name: str ="llama3:8b"):
         print(f"{model_name} başlatılıyor")
-        self.OllamaLLM = OllamaLLM(model=model_name)
+        self.chat_model = ChatOllama(model="llama3:8b")
+
         print("Başlatıldı")
 
     def invoke(self, messages: List[BaseMessage]) -> BaseMessage:
