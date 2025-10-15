@@ -45,7 +45,7 @@ print(f"Koleksiyonda toplam {collection.count()} adet doküman var.")
 
 
 # --- find_document fonksiyonu
-#bu fonksiyon test_RAG.py'da 'search_context' içinde kullanılacak.
+#bu fonksiyon rag.py'da 'search_context' içinde kullanılacak.
 def find_document(query: str) -> Optional[Document]:
     results = collection.query(
         query_texts=[query],

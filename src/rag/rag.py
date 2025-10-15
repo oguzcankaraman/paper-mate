@@ -17,7 +17,7 @@ from langgraph.graph import START, StateGraph, END
 from langgraph.graph.message import add_messages
 from langgraph.checkpoint.memory import MemorySaver
 
-from src.rag import find_document
+from src.rag import VectorStore
 
 class State(TypedDict, total=False):
     """
@@ -39,8 +39,8 @@ class RAGConfig:
     max_retries: int = 3
     timeout: int = 30
 
-class TestRAG:
-    def __init__(self, config: RAGConfig = None):
+class RAG:
+    def __init__(self, config: RAGConfig = None, user_id: str = "12345"):
         self.config = config or RAGConfig()
         self.env_loaded = self._get_env()
         if not self.env_loaded:
@@ -52,6 +52,7 @@ class TestRAG:
         self.system_prompt = self.config.system_prompt
         self.app = None
         self.memory = MemorySaver()
+        self.vector_store = VectorStore(user_id=user_id )
         logger.info(f"Initialized RAG with model: {self.config.model_name}")
 
     # noinspection PyMethodMayBeStatic
@@ -66,7 +67,7 @@ class TestRAG:
     # noinspection PyMethodMayBeStatic
     def _search_context(self, state: State) -> State:
         try:
-            documents = [find_document(state["question"])]# Hali hazırda list of Document döndüren bir method/fonksiyon olmalı
+            documents = [self.vector_store.find_document(state["question"])]# Hali hazırda list of Document döndüren bir method/fonksiyon olmalı
             if not documents or not documents[0]:
                 return {"context": []}
             return {"context": documents}
@@ -137,10 +138,10 @@ class TestRAG:
 
 if __name__ == "__main__":
     # RAG instance oluştur
-    rag = TestRAG()
+    rag = RAG()
 
     # Test sorusu
-    test_question = "Ankarada napıyorum"
+    test_question = "Yapay zeka etiği neyi amaçlar?"
 
     print(f"Question: {test_question}")
     print("-" * 50)
@@ -153,7 +154,7 @@ if __name__ == "__main__":
 
     print("-" * 50)
 
-    test_question = "Adım Oğuzcan"
+    test_question = "Oğuzla Yağız neden çok mutlu?"
 
     print(f"Question: {test_question}")
     print("-" * 50)
@@ -166,7 +167,7 @@ if __name__ == "__main__":
 
     print("-" * 50)
 
-    test_question = "Adımı söylemişştim, neydi?"
+    test_question = "Bir önceki sorduğum soru neydi?"
 
     print(f"Question: {test_question}")
     print("-" * 50)
