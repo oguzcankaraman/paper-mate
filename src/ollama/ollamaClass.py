@@ -1,4 +1,6 @@
+from langchain_core.messages import BaseMessage, AIMessage
 from langchain_ollama import OllamaLLM
+from typing import List
 
 class OllamaClient:
     def __init__(self, model_name: str ="llama3:8b"):
@@ -6,10 +8,11 @@ class OllamaClient:
         self.OllamaLLM = OllamaLLM(model=model_name)
         print("Başlatıldı")
 
-    def invoke(self, prompt: str)-> str:
+    def invoke(self, messages: List[BaseMessage]) -> BaseMessage:
         #verilen prompt ile modeli çağırıp yanıtı döndürür
         try:
-            response = self.OllamaLLM.invoke(prompt)
+            # invoke metodunu çağırarak mesaj listesini doğrudan gönderiyoruz
+            response = self.chat_model.invoke(messages)
             return response
         except Exception as e:
-            return f"Bir hata oluştu: {e}"
+            return AIMessage(content=f"Bir hata oluştu: {e}")
