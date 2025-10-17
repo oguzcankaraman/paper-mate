@@ -1,6 +1,5 @@
 from langchain_core.messages import BaseMessage, AIMessage
 from langchain_ollama import ChatOllama
-
 from typing import List
 
 
