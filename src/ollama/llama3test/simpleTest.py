@@ -12,4 +12,5 @@ response = client.generate(model=model, prompt=prompt)
 
 # Print the response from the model
 print("Response from Ollama:")
-print(response.response)
+#print(response.response)
+client.invoke(prompt)
