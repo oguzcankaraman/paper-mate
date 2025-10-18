@@ -9,16 +9,16 @@ class ollamaClientService:
         print("OllamaClientService başlatıldı")
 
 
-    async def invokeOllama(self, messages: List[BaseMessage]) -> dict[str, str | bool] | dict[str, str]:
+
+    async def prompt_summerizer(self, text_to_summarize: str, length: str = "kısa ve öz") -> dict[str, str | bool] | dict[str, str]:
         try:
-            self.ollama_client.invoke(messages=messages)
+            self.ollama_client.summarize_prompt(text_to_summarize=text_to_summarize, length=length)
             return{
                 "success": True,
-                "messages": "'messages' promptu başarıyla girildi "
+                "text_to_summarize": "'text_to_summarize' başarılı oldu"
             }
         except Exception as e:
             return {
                 "success": False,
-                "messages": "'messages' promptu başarısız oldu"
-
-                    }
+                "text_to_summarize": "'text_to_summarize' başarısız oldu"
+            }
