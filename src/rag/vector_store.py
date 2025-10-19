@@ -21,7 +21,7 @@ class VectorStore:
 
         await asyncio.to_thread(self.collection.add, documents=contents, metadatas=metadatas, ids=ids)
 
-    async def find_document(self, user_id: str, query: str, top_k: int = 3) -> List[Document]:
+    async def find_document(self, user_id: str, query: str) -> List[Document]:
         results =  await asyncio.to_thread(self.collection.query,
             query_texts=[query],
             n_results=5,

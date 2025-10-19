@@ -70,7 +70,7 @@ class RAG:
             if not document:
                 return {"context": []}
 
-            return {"context": [document]}
+            return {"context": document}
         except Exception as e:
             logger.error(f"Error searching context: {e}")
             return {"context": []}
