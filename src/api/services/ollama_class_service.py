@@ -20,5 +20,5 @@ class ollamaClientService:
             return {
 
                 "success": False,
-                "text_to_summarize": "'text_to_summarize' başarısız oldu"
+                "text_to_summarize": "'text_to_summarize' başarısız oldu:" + str(e)
             }
