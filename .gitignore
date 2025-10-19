@@ -209,3 +209,4 @@ __marimo__/
 
 # Local DatBase
 src/rag/chroma_db
+src/api/services/chroma_db/
