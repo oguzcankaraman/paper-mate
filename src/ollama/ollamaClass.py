@@ -1,4 +1,4 @@
-from langchain_core.messages import BaseMessage, AIMessage, SystemMessage, HumanMessage
+from langchain_core.messages import BaseMessage, SystemMessage, HumanMessage, AIMessage
 from langchain_ollama import ChatOllama
 from typing import List
 
@@ -10,9 +10,15 @@ class OllamaClient:
 
         print("Başlatıldı")
 
+    async def ainvoke(self, messages: List[BaseMessage]) -> BaseMessage:
+        """Asenkron temel invoke metodu."""
+        try:
+            # Burası LangChain'in kendi ainvoke metodudur
+            return await self.chat_model.ainvoke(messages)
+        except Exception as e:
+            return AIMessage(content=f"Bir hata oluştu: {e}")
 
-
-    async def summarize_prompt(self, text_to_summarize: List[BaseMessage], length: str = "kısa ve öz") -> BaseMessage:
+    async def summerizer(self, text_to_summarize: List[BaseMessage], length: str = "kısa ve öz") -> BaseMessage:
         """
         Asenkron olarak verilen metni özetleyen ve yanıtı bir AIMessage nesnesi olarak döndüren metot.
 
@@ -50,3 +56,5 @@ class OllamaClient:
 
         # BaseMessage (AIMessage) nesnesini döndür
         return summary_response
+
+

@@ -1,6 +1,5 @@
-from langchain_core.messages import BaseMessage, AIMessage
-from langchain_ollama import ChatOllama
-from typing import List, Any, Coroutine
+from langchain_core.messages import BaseMessage
+from typing import List
 from src.ollama import OllamaClient
 
 class ollamaClientService:
@@ -10,9 +9,9 @@ class ollamaClientService:
 
 
 
-    async def prompt_summerizer(self, text_to_summarize: str, length: str = "kısa ve öz") -> dict[str, str | bool] | dict[str, str]:
+    async def api_summerizer(self, text_to_summarize: List[BaseMessage], length: str = "kısa ve öz") -> dict[str, str | bool] | dict[str, str]:
         try:
-            self.ollama_client.summarize_prompt(text_to_summarize=text_to_summarize, length=length)
+            await self.ollama_client.summerizer(text_to_summarize=text_to_summarize, length=length)
             return{
                 "success": True,
                 "text_to_summarize": "'text_to_summarize' başarılı oldu"
