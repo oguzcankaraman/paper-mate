@@ -21,7 +21,7 @@ class VectorStore:
 
         await asyncio.to_thread(self.collection.add, documents=contents, metadatas=metadatas, ids=ids)
 
-    async def find_document(self, user_id: str, query: str) -> Optional[Document]:
+    async def find_document(self, user_id: str, query: str, top_k: int = 3) -> List[Document]:
         results =  await asyncio.to_thread(self.collection.query,
             query_texts=[query],
             n_results=1,
@@ -29,11 +29,15 @@ class VectorStore:
             where={"user_id": user_id},
             include=["metadatas", "documents"]
         )
+        found_documents = []
         if results and results['documents'][0]:
-            page_content = results['documents'][0][0]
-            metadata = results['metadatas'][0][0]
-            return Document(page_content=page_content, metadata=metadata)
-        return None
+            # gelen tüm sonucları isleyen bir döngü
+            for content, metadata in zip(results['documents'][0], results['metadatas'][0]):
+                found_documents.append(
+                    Document(page_content=content, metadata=metadata)
+                )
+
+        return found_documents
 
     async def delete_user_documents(self, user_id: str):
         """Ana koleksiyondan belirtilen kullanıcıya ait tüm dökümanları siler."""
@@ -55,14 +59,28 @@ if __name__ == "__main__":
 
         sample_docs = [
             Document(page_content="Yapay zeka etiği, algoritmaların adil ve şeffaf olmasını amaçlar.", metadata={"source": "makale_1.pdf"}),
-            Document(page_content="Ankara, Türkiye'nin başkenti ve en kalabalık ikinci şehridir.", metadata={"source": "cografya_kitabi.pdf"})
+            Document(page_content="Ankara, Türkiye'nin başkenti ve en kalabalık ikinci şehridir.", metadata={"source": "cografya_kitabi.pdf"}),
+            Document(page_content="Türkiye'nin en yüksek dağı Ağrı Dağı'dır.",metadata={"source": "cografya_kitabi.pdf"})
         ]
 
-        # metotları user_id ile çağırma
+        query_search = "Türkiye'nin coğrafi özellikleri nelerdir?"
+        # metotları çağırma kısmı
         await vector_store_instance.add_user_documents(user_id=test_user_id, documents=sample_docs)
-        found_doc = await vector_store_instance.find_document(user_id=test_user_id, query="Başkent neresidir?")
-
-        print(f"\nBulunan sonuç: {found_doc.page_content if found_doc else 'Bulunamadı.'}")
+        found_docs_list = await vector_store_instance.find_document(
+            user_id=test_user_id,
+            query=query_search,
+            top_k=2
+        )
+        print(f"Sorulan soru : {query_search}")
+        print(f"\nBulunan sonuçlar ({len(found_docs_list)} adet):")
+        if found_docs_list:
+            # listenin içindeki her bir dokümanı ayrı ayrı yazdırma kısmı.
+            for i, doc in enumerate(found_docs_list):
+                print(f"--- Sonuç {i + 1} ---")
+                print(f"  İçerik: {doc.page_content}")
+                print(f"  Metadata: {doc.metadata}")
+        else:
+            print("  İlgili doküman bulunamadı.")
 
         await vector_store_instance.delete_user_documents(user_id=test_user_id)
 
