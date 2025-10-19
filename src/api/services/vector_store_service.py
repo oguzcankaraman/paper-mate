@@ -11,7 +11,7 @@ class VectorDatabaseService:
     async def add_documents_for_user(self, user_id: str, documents: List[Document]) -> dict:
         try:
             # add_user_documents metodunu çağırma
-            self.vector_store.add_user_documents(user_id=user_id, documents=documents)
+            await self.vector_store.add_user_documents(user_id=user_id, documents=documents)
             return {
                 "success": True,
                 "message": f"'{user_id}' kullanıcısı için {len(documents)} doküman eklendi."
@@ -22,7 +22,7 @@ class VectorDatabaseService:
     async def search_for_user(self, user_id: str, query: str) -> dict:
         try:
             # arama metodunu user_id ile çağırma
-            found_doc = self.vector_store.find_document(user_id=user_id, query=query)
+            found_doc = await self.vector_store.find_document(user_id=user_id, query=query)
             return {"success": True, "document": found_doc}
         except Exception as e:
             return {"success": False, "error": f"'{user_id}' kullanıcısı için arama yapılamadı: {str(e)}"}
@@ -30,7 +30,7 @@ class VectorDatabaseService:
     async def delete_user_data(self, user_id: str) -> dict:
         try:
             # silme metodunu user_id ile çağırma
-            self.vector_store.delete_user_documents(user_id=user_id)
+            await self.vector_store.delete_user_documents(user_id=user_id)
             return {"success": True, "message": f"'{user_id}' kullanıcısının verileri silindi."}
         except Exception as e:
             return {"success": False, "error": f"'{user_id}' kullanıcısının verileri silinemedi: {str(e)}"}
