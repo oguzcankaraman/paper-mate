@@ -62,10 +62,10 @@ class RAG:
             return False
 
     # noinspection PyMethodMayBeStatic
-    def _search_context(self, state: State) -> State:
+    async def _search_context(self, state: State) -> State:
         try:
             user_id = state.get("user_id", "12345")
-            document = self.vector_store.find_document(user_id, state["question"])
+            document = await self.vector_store.find_document(user_id, state["question"])
 
             if not document:
                 return {"context": []}
@@ -75,7 +75,8 @@ class RAG:
             logger.error(f"Error searching context: {e}")
             return {"context": []}
 
-    def _get_answer(self, state: State) -> State:
+    async def _get_answer(self, state: State) -> State:
+        messages = []
         try:
             context_text = "\n".join([doc.page_content for doc in state["context"]])
             messages = state.get("messages", [])
@@ -87,7 +88,7 @@ class RAG:
                 ]
             messages.append(HumanMessage(content=state['question']))
 
-            answer = self.llm.invoke(messages)
+            answer = await self.llm.ainvoke(messages)
             messages.append(answer)
             return {"answer": answer.content, "messages": messages}
         except Exception as e:
@@ -109,7 +110,7 @@ class RAG:
         graph = self._build_graph()
         self.app = graph.compile(checkpointer=self.memory)
 
-    def run_workflow(self, question: str, user_id: str = "12345") -> State:
+    async def run_workflow(self, question: str, user_id: str = "12345") -> State:
         """
         Bütün süreci çalıştıran ana method. Sırasıyla verilen context üzerinde
         benzerlik araması yaparak benzer sonucu alır, bu sonucu kullanılan LLM'e gösterir ve
@@ -128,7 +129,7 @@ class RAG:
             self._compile_graph()
 
         logger.info(f"Completed workflow (thread: {user_id})")
-        return self.app.invoke(
+        return await self.app.ainvoke(
             {
                 "question": question,
                 "context": [],
@@ -140,7 +141,9 @@ class RAG:
 
 
 
-if __name__ == "__main__":
+import asyncio
+
+async def main():
     # RAG instance oluştur
     rag = RAG()
 
@@ -151,7 +154,7 @@ if __name__ == "__main__":
     print("-" * 50)
 
     # Workflow'u çalıştır
-    result = rag.run_workflow(test_question, "12345")
+    result = await rag.run_workflow(test_question, "12345")
 
     print(f"\nContext: {result['context']}")
     print(f"\nAnswer: {result['answer']}")
@@ -163,8 +166,7 @@ if __name__ == "__main__":
     print(f"Question: {test_question}")
     print("-" * 50)
 
-    # Workflow'u çalıştır
-    result = rag.run_workflow(test_question, "12345")
+    result = await rag.run_workflow(test_question, "12345")
 
     print(f"\nContext: {result['context']}")
     print(f"\nAnswer: {result['answer']}")
@@ -176,8 +178,10 @@ if __name__ == "__main__":
     print(f"Question: {test_question}")
     print("-" * 50)
 
-    # Workflow'u çalıştır
-    result = rag.run_workflow(test_question, "12345")
+    result = await rag.run_workflow(test_question, "12345")
 
     print(f"\nContext: {result['context']}")
     print(f"\nAnswer: {result['answer']}")
+
+if __name__ == "__main__":
+    asyncio.run(main())
