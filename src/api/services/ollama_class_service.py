@@ -2,7 +2,7 @@ from langchain_core.messages import BaseMessage
 from typing import List
 from src.ollama import OllamaClient
 
-class ollamaClientService:
+class OllamaClientService:
     def __init__(self):
         self.ollama_client = OllamaClient()
         print("OllamaClientService başlatıldı")
