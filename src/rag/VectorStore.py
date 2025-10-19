@@ -66,4 +66,4 @@ if __name__ == "__main__":
 
         await vector_store_instance.delete_user_documents(user_id=test_user_id)
 
-        asyncio.run(main())
+    asyncio.run(main())
