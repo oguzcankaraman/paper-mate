@@ -18,7 +18,7 @@ class OllamaClient:
         except Exception as e:
             return AIMessage(content=f"Bir hata oluştu: {e}")
 
-    async def summerizer(self, text_to_summarize: List[BaseMessage], length: str = "kısa ve öz") -> BaseMessage:
+    async def summarizer(self, text_to_summarize: List[BaseMessage], length: str = "kısa ve öz") -> BaseMessage:
         """
         Asenkron olarak verilen metni özetleyen ve yanıtı bir AIMessage nesnesi olarak döndüren metot.
 

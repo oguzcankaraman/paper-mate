@@ -9,15 +9,16 @@ class ollamaClientService:
 
 
 
-    async def api_summerizer(self, text_to_summarize: List[BaseMessage], length: str = "kısa ve öz") -> dict[str, str | bool] | dict[str, str]:
+    async def api_summarizer(self, text_to_summarize: List[BaseMessage], length: str = "kısa ve öz") -> dict:
         try:
-            await self.ollama_client.summerizer(text_to_summarize=text_to_summarize, length=length)
+            summary_message: BaseMessage = await self.ollama_client.summarizer(text_to_summarize=text_to_summarize, length=length)
+
             return{
-                "success": True,
-                "text_to_summarize": "'text_to_summarize' başarılı oldu"
+                "summary": summary_message.content
             }
         except Exception as e:
             return {
+
                 "success": False,
                 "text_to_summarize": "'text_to_summarize' başarısız oldu"
             }
