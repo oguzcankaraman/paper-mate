@@ -1,6 +1,9 @@
 from langchain_core.messages import BaseMessage, SystemMessage, HumanMessage, AIMessage
+from langchain_core.documents import Document
 from langchain_ollama import ChatOllama
 from typing import List
+import asyncio
+
 
 
 class OllamaClient:
@@ -18,7 +21,7 @@ class OllamaClient:
         except Exception as e:
             return AIMessage(content=f"Bir hata oluştu: {e}")
 
-    async def summarizer(self, text_to_summarize: List[BaseMessage], length: str = "kısa ve öz") -> BaseMessage:
+    async def summarizer(self, text_to_summarize: List[Document], length: str = "kısa ve öz") -> BaseMessage:
         """
         Asenkron olarak verilen metni özetleyen ve yanıtı bir AIMessage nesnesi olarak döndüren metot.
 
@@ -38,9 +41,10 @@ class OllamaClient:
             "Ek yorum yapma, sadece özeti döndür."
         )
         system_message = SystemMessage(content=system_instruction)
+        combined_text = "\n\n".join([doc.page_content for doc in text_to_summarize])
 
         # 2. Kullanıcı Mesajı (Özetlenecek Metin)
-        human_message = HumanMessage(content=text_to_summarize)
+        human_message = HumanMessage(content=combined_text)
 
         # 3. Mesaj Listesi
         messages_for_summary = [
