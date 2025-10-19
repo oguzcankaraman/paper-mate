@@ -1,5 +1,5 @@
 import chromadb
-from typing import Optional, List
+from typing import List
 from langchain_core.documents import Document
 import asyncio
 
@@ -24,7 +24,7 @@ class VectorStore:
     async def find_document(self, user_id: str, query: str, top_k: int = 3) -> List[Document]:
         results =  await asyncio.to_thread(self.collection.query,
             query_texts=[query],
-            n_results=1,
+            n_results=5,
             # aramanın sadece user_id'si eşleşen dokümanlarda yapılmasını sağlar.
             where={"user_id": user_id},
             include=["metadatas", "documents"]
