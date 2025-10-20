@@ -5,7 +5,7 @@
 ### 1. Branch Oluşturma
 ```bash
 git checkout main
-git pull origin main
+git checkout main
 git checkout -b feature/team-X-feature-name
 ```
 
