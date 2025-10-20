@@ -1,0 +1,35 @@
+* [33m90f067f[m[33m ([m[1;32mfeature/Goktug-Pdf[m[33m)[m feat:Pdf parser düzeltildi
+* [33m85863e7[m[33m ([m[1;31morigin/feature/Goktug-Pdf[m[33m)[m feat: Pdf parser eklendi.Pdf okunuyor ve metadatası bulunuyor.
+[31m|[m * [33m91f3c1a[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m feat: added ollama test and edited README (#22)
+[31m|[m [32m|[m * [33m7d6e74c[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m feat: Pdf parser yapıldı.Pdf okuması yapıyor ve metadataları çıkartıyor
+[31m|[m [32m|[m * [33m53a3b59[m feat: Pdf parser eklendi.Pdf okunabiliyor ve metadataları alınıyor.
+[31m|[m [32m|[m[32m/[m  
+[31m|[m * [33mb5416ee[m Refactor/team2 rag (#21)
+[31m|[m[31m/[m  
+* [33m5a28796[m[33m ([m[1;32mfeature/Goktuug-Pdf[m[33m)[m Vector Database alaninda istenilen 'VectorStore' class 'i tamamlandi. (#20)
+* [33ma13d993[m Refactor/team2 rag (#19)
+* [33m3ddd2ec[m classTestChroma.py (test_chroma 'nın class formatı) (#18)
+* [33m0eaf814[m test_chroma.py modulünde degisiklik (#17)
+* [33m13a3725[m feat: TestRAG classı geçici bir model ile oluşturuldu. (#16)
+* [33m301dbb1[m Feature/team 3 vector database (#15)
+* [33md3b2d86[m Feature/team 3 vector database (#14)
+* [33m3a8a51e[m isim eklendi (#13)
+* [33m3ded6cb[m feat: README.md llm Arda test yazıldı (#12)
+* [33m3362fae[m feat: add WORKFLOW.md to project sturcture (#11)
+* [33mdaaf78c[m README.md göktuğ arda umul yazıldı (#10)
+[33m|[m * [33ma2bd600[m[33m ([m[1;31morigin/feature/arda-pdf-parser[m[33m, [m[1;32mfeature/arda-pdf-parser[m[33m)[m README.md göktuğ arda umul yazıldı
+[33m|[m[33m/[m  
+* [33mf83316d[m Emre Yağız Koçak ismi README.md 'ye eklendi. (#9)
+[34m|[m * [33m26e72f4[m[33m ([m[1;31morigin/feature/team-3-vector-database[m[33m)[m Emre Yağız Koçak ismi README.md 'ye eklendi.
+[34m|[m[34m/[m  
+* [33m808388b[m Revert "Emre Yağız Koçak ismi README.md ye eklendi (#7)" (#8)
+[35m|[m * [33mbc1c81f[m[33m ([m[1;31morigin/revert-mistakes[m[33m)[m Revert "Emre Yağız Koçak ismi README.md ye eklendi (#7)"
+[35m|[m[35m/[m  
+* [33m19f44a0[m Emre Yağız Koçak ismi README.md ye eklendi (#7)
+*   [33mef2eac9[m Merge pull request #2 from oguzcankaraman/feature/team3-test
+[1;31m|[m[1;32m\[m  
+[1;31m|[m * [33m3172e26[m feature: README.md eklendi
+[1;31m|[m[1;31m/[m  
+* [33mdec3496[m ci: add GitHub Actions workflow
+* [33m48bbb2d[m chore: initial project structure
+* [33mea82eec[m Initial commit
