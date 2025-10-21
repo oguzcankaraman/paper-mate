@@ -14,7 +14,7 @@ Base = declarative_base()
 
 def init_db():
     """Veritabanı tablolarını oluşturur"""
-    from .models import User, Conversation, Message  # Circular import'u önlemek için buraya import
+    from .models import User, Conversation, Message  # import edilmeyen modellerı bilemez vve tablelarını oluşturamaz
     Base.metadata.create_all(bind=engine)
 
 def get_db():
