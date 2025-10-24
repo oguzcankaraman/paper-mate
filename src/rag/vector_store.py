@@ -21,22 +21,19 @@ class VectorStore:
 
         await asyncio.to_thread(self.collection.add, documents=contents, metadatas=metadatas, ids=ids)
 
-    async def find_document(self, user_id: str, query: str) -> List[Document]:
-        results =  await asyncio.to_thread(self.collection.query,
-            query_texts=[query],
-            n_results=5,
-            # aramanın sadece user_id'si eşleşen dokümanlarda yapılmasını sağlar.
-            where={"user_id": user_id},
-            include=["metadatas", "documents"]
-        )
+    async def find_document(self, user_id: int, query: str) -> List[Document]:  # int parametre
+        results = await asyncio.to_thread(self.collection.query,
+                                          query_texts=[query],
+                                          n_results=5,
+                                          where={"user_id": str(user_id)},  # string'e çevir
+                                          include=["metadatas", "documents"]
+                                          )
         found_documents = []
         if results and results['documents'][0]:
-            # gelen tüm sonucları isleyen bir döngü
             for content, metadata in zip(results['documents'][0], results['metadatas'][0]):
                 found_documents.append(
                     Document(page_content=content, metadata=metadata)
                 )
-
         return found_documents
 
     async def delete_user_documents(self, user_id: str):
