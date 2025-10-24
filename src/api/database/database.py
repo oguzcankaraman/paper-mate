@@ -24,3 +24,8 @@ def get_db():
         yield db
     finally:
         db.close()
+
+def create_tables():
+    """Tüm tabloları oluşturur"""
+    from src.api.database.models import User, Conversation, Message
+    Base.metadata.create_all(bind=engine)

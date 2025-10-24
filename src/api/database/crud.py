@@ -18,7 +18,7 @@ def create_user(db: Session, name: str, email: str, password: str) -> User:
     return db_user
 
 
-def get_user_by_id(db: Session, user_id: int) -> Optional[User]:
+def get_user_by_id(db: Session, user_id: int) -> Optional[User]:  # str -> int
     """ID'ye göre kullanıcı getirir."""
     return db.query(User).filter(User.id == user_id).first()
 
@@ -33,12 +33,12 @@ def get_user_by_name(db: Session, name: str) -> Optional[User]:
     return db.query(User).filter(User.name == name).first()
 
 
-def get_users(db: Session, skip: int = 0, limit: int = 100) -> list[type[User]]:
+def get_users(db: Session, skip: int = 0, limit: int = 100) -> list[type[User]]:  # list[type[User]] -> list[User]
     """Tüm kullanıcıları getirir."""
     return db.query(User).offset(skip).limit(limit).all()
 
 
-def update_user(db: Session, user_id: int, **kwargs) -> Optional[User]:
+def update_user(db: Session, user_id: int, **kwargs) -> Optional[User]:  # str -> int
     """Kullanıcı bilgilerini günceller."""
     user = get_user_by_id(db, user_id)
     if user:
@@ -50,7 +50,7 @@ def update_user(db: Session, user_id: int, **kwargs) -> Optional[User]:
     return user
 
 
-def delete_user(db: Session, user_id: int) -> bool:
+def delete_user(db: Session, user_id: int) -> bool:  # str -> int
     """Kullanıcıyı siler."""
     user = get_user_by_id(db, user_id)
     if user:
@@ -61,16 +61,18 @@ def delete_user(db: Session, user_id: int) -> bool:
 
 
 # Conversation CRUD Operations
-def create_conversation(db: Session, user_id: int) -> Conversation:
+def create_conversation(db: Session, user_id: int) -> Optional[Conversation]:  # str -> int, Optional ekle
     """Yeni konuşma oluşturur."""
-    db_conversation = Conversation(
-        user_id=user_id
-    )
+    # Foreign key kontrolü
+    user = get_user_by_id(db, user_id)
+    if not user:
+        return None
+
+    db_conversation = Conversation(user_id=user_id)
     db.add(db_conversation)
     db.commit()
     db.refresh(db_conversation)
     return db_conversation
-
 
 
 def get_conversation_by_id(db: Session, conversation_id: int) -> Optional[Conversation]:
@@ -78,7 +80,7 @@ def get_conversation_by_id(db: Session, conversation_id: int) -> Optional[Conver
     return db.query(Conversation).filter(Conversation.id == conversation_id).first()
 
 
-def get_conversations_by_user(db: Session, user_id: int) -> list[type[Conversation]]:
+def get_conversations_by_user(db: Session, user_id: int) -> list[type[Conversation]]:  # str -> int, list[type[Conversation]] -> list[Conversation]
     """Kullanıcının tüm konuşmalarını getirir."""
     return db.query(Conversation).filter(Conversation.user_id == user_id).order_by(Conversation.created_at.desc()).all()
 
@@ -93,7 +95,6 @@ def update_conversation(db: Session, conversation_id: int, updated_at: datetime 
     return conversation
 
 
-
 def delete_conversation(db: Session, conversation_id: int) -> bool:
     """Konuşmayı siler (cascade ile mesajlar da silinir)."""
     conversation = get_conversation_by_id(db, conversation_id)
@@ -105,8 +106,16 @@ def delete_conversation(db: Session, conversation_id: int) -> bool:
 
 
 # Message CRUD Operations
-def create_message(db: Session, conversation_id: int, role: str, content: str) -> Message:
+def create_message(db: Session, conversation_id: int, role: str, content: str) -> Optional[Message]:  # Optional ekle
     """Yeni mesaj oluşturur."""
+    # Validasyonlar
+    if role not in ["user", "assistant"]:
+        return None
+
+    conversation = get_conversation_by_id(db, conversation_id)
+    if not conversation:
+        return None
+
     db_message = Message(
         conversation_id=conversation_id,
         role=role,
@@ -123,7 +132,7 @@ def get_message_by_id(db: Session, message_id: int) -> Optional[Message]:
     return db.query(Message).filter(Message.id == message_id).first()
 
 
-def get_messages_by_conversation(db: Session, conversation_id: int) -> list[type[Message]]:
+def get_messages_by_conversation(db: Session, conversation_id: int) -> list[type[Message]]:  # list[type[Message]] -> list[Message]
     """Konuşmanın tüm mesajlarını getirir."""
     return db.query(Message).filter(Message.conversation_id == conversation_id).order_by(Message.timestamp.asc()).all()
 
