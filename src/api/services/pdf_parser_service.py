@@ -1,7 +1,6 @@
 from langchain_core.documents import Document
-from pdf_processing.pdf_parser import PdfProcessor  # pdf_processor.py'den içe aktarılıyor
+from src.pdf_processing.pdf_parser import PdfProcessor  # pdf_processor.py'den içe aktarılıyor
 from typing import Dict, Any, List
-
 
 class PdfParserService:
     def __init__(self, chunk_size: int = 1500, chunk_overlap: int = 150):
