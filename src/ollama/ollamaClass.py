@@ -1,10 +1,11 @@
+from src.api.services.prompt_service import PromptService
 from langchain_core.messages import BaseMessage, SystemMessage, HumanMessage, AIMessage
 from langchain_core.documents import Document
 from langchain_ollama import ChatOllama
 from typing import List
 import asyncio
 
-
+prompt_service = PromptService(file_path="src/ollama/prompt.json")
 
 class OllamaClient:
     def __init__(self, model_name: str ="llama3:8b"):
@@ -35,11 +36,16 @@ class OllamaClient:
         print(f"\n--- Asenkron Özetleme İşlemi Başladı ---")
 
         # 1. Sistem Mesajı (Modeli Yönlendirme)
-        system_instruction = (
-            f"Sen bir özetleme uzmanısın. Görevin, sana verilen metni 'Türkçe' olarak "
-            f"'{length}' bir şekilde, en önemli noktaları vurgulayarak özetlemektir. "
-            "Ek yorum yapma, sadece özeti döndür."
+        system_instruction = prompt_service.get_prompt(
+            category="SYSTEM_INSTRUCTIONS",
+            key="SUMMARY_EXPERT",
+            # Prompt'taki {length} alanını doldurmak için kwargs kullanılıyor
+            length=length
         )
+        if not system_instruction:
+            # Yedek prompt kullan (hata durumunda)
+            system_instruction = "Lütfen metni kısaca özetle. Metin içeriğinin dışına çıkma ve herhangi bir ek bilgi kullanma"
+
         system_message = SystemMessage(content=system_instruction)
         combined_text = "\n\n".join([doc.page_content for doc in text_to_summarize])
 

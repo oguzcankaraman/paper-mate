@@ -15,4 +15,6 @@ Ollamayı pythona bağlamak için pycharm terminalinden "pip install ollama" kom
 
 -python 3.13 kullandığınıza emin olun
 
-    Olası farklı hatalar için Discorddan yetkili birini etiketleyin.
+   "" Olası farklı hatalar için Discorddan yetkili birini etiketleyin.
+
+    Eklenecek ya da değiştirilecek promptları ollama/prompt.json dan değiştirin !!

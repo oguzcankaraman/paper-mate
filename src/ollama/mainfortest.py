@@ -3,12 +3,14 @@
 import asyncio
 from langchain_core.documents import Document
 from typing import List
+from src.api.services.prompt_service import PromptService
 
 # ollama_client.py dosyasından OllamaClient sınıfını içe aktar
 from ollamaClass import OllamaClient
 
 # 'summarizer' metodu için main fonksiyonu
 async def main():
+    await service.load_prompts()
     try:
         client = OllamaClient(model_name="llama3:8b")
     except Exception as e:
