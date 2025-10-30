@@ -11,7 +11,9 @@ class PromptService:
     """
 
     def __init__(self, file_path: str = "prompts.json"):
+
        #olurda prompt.json yerini değiştirdikten sonra hata alırsanız bu satırdan düzenleyin !!
+
         self.file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', file_path)
         self.prompts: Dict[str, Any] = {}
         # NOT: __init__ metodu asenkron olamaz. Yükleme işlemini
@@ -19,9 +21,7 @@ class PromptService:
         print("PromptService başlatıldı. Yükleme için 'await service.load_prompts()' çağırılmalı.")
 
     async def load_prompts(self):
-        """
-        Asenkron olarak JSON dosyasını okur ve içeriği self.prompts'a yükler.
-        """
+        #jsonu çeker ve self.prompts a yükler
         print(f"🔄 Prompt dosyasını asenkron olarak okuyor: {self.file_path}")
 
         # 1. Dosya Kontrolü (asyncio.to_thread ile senkron I/O'yu yönetme)
@@ -45,9 +45,7 @@ class PromptService:
             raise Exception(f"Beklenmedik yükleme hatası: {e}")
 
     def get_prompt(self, category: str, key: str, **kwargs) -> Optional[str]:
-        """
-        Prompt'u çeker ve formatlar. Bu metot I/O yapmadığı için async olmak ZORUNDA DEĞİLDİR.
-        """
+       #promptu çekiyor
         if not self.prompts:
             raise RuntimeError("PromptService yüklenmemiş. Lütfen önce 'await service.load_prompts()' çağırın.")
 
@@ -85,6 +83,6 @@ async def main_test():
 
 
 if __name__ == "__main__":
-    # Bu testin çalışması için geçerli bir prompts.json dosyası olmalıdır.
+    # test etmek için eğer yoksa ollamanın altına prompt.json yazın, ya da varolan dosyayı oraya taşıyın.
     asyncio.run(main_test())
     pass
