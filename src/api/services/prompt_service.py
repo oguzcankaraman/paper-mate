@@ -10,9 +10,9 @@ class PromptService:
     JSON dosyasından prompt konfigürasyonlarını asenkron olarak yükler ve erişimi sağlar.
     """
 
-    def __init__(self, file_path: str = "prompts.json"):
+    def __init__(self, file_path: str = "promptsOllama.json"):
 
-       #olurda prompt.json yerini değiştirdikten sonra hata alırsanız bu satırdan düzenleyin !!
+       #olurda promptOllama.json yerini değiştirdikten sonra hata alırsanız bu satırdan düzenleyin !!
 
         self.file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', file_path)
         self.prompts: Dict[str, Any] = {}
@@ -66,7 +66,7 @@ class PromptService:
 # --- Kullanım Örneği ---
 async def main_test():
     # 1. Sınıfı başlat
-    service = PromptService(file_path="ollama/prompt.json")  # Dosya adını ayarlayın
+    service = PromptService(file_path="prompts/promptOllama.json")  # Dosya adını ayarlayın
 
     # 2. Asenkron yükleme metodunu çağır ve await ile bekle
     # Bu adımı atlamak RuntimeError fırlatır!
@@ -83,6 +83,6 @@ async def main_test():
 
 
 if __name__ == "__main__":
-    # test etmek için eğer yoksa ollamanın altına prompt.json yazın, ya da varolan dosyayı oraya taşıyın.
+    # test etmek için eğer yoksa ollamanın altına promptOllama.json yazın, ya da varolan dosyayı oraya taşıyın.
     asyncio.run(main_test())
     pass

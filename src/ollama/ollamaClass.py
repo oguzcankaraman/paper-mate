@@ -5,7 +5,7 @@ from langchain_ollama import ChatOllama
 from typing import List
 import asyncio
 
-prompt_service = PromptService(file_path="src/ollama/prompt.json")
+prompt_service = PromptService(file_path="src/ollama/promptOllama.json")
 
 class OllamaClient:
     def __init__(self, model_name: str ="llama3:8b"):
