@@ -48,7 +48,7 @@ class OllamaClient:
             system_instruction = "Lütfen metni kısaca özetle. Metin içeriğinin dışına çıkma ve herhangi bir ek bilgi kullanma"
 
         system_message = SystemMessage(content=system_instruction)
-        combined_text = "\n\n".join([doc["content"] for doc in text_to_summarize])
+        combined_text = "\n\n".join([doc["page_content"] for doc in text_to_summarize])
         print("ŞU ANDA BURADASINIZ !!!!!!!!!!!!!!!!!!")
         print(f"{combined_text}")
 
@@ -68,6 +68,6 @@ class OllamaClient:
         print("--- Asenkron Özetleme İşlemi Tamamlandı ---")
 
         # BaseMessage (AIMessage) nesnesini döndür
-        return summary_response.content
+        return summary_response
 
 
