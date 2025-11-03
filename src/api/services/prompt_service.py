@@ -10,7 +10,7 @@ class PromptService:
     JSON dosyasından prompt konfigürasyonlarını asenkron olarak yükler ve erişimi sağlar.
     """
 
-    def __init__(self, file_path: str = "promptsOllama.json"):
+    def __init__(self, file_path: str = "prompts/promptOllama.json"):
 
        #olurda promptOllama.json yerini değiştirdikten sonra hata alırsanız bu satırdan düzenleyin !!
 

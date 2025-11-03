@@ -5,7 +5,7 @@ from langchain_ollama import ChatOllama
 from typing import List
 import asyncio
 
-prompt_service = PromptService(file_path="src/ollama/promptOllama.json")
+prompt_service = PromptService(file_path="prompts/promptOllama.json")
 
 class OllamaClient:
     def __init__(self, model_name: str ="llama3:8b"):
@@ -22,7 +22,7 @@ class OllamaClient:
         except Exception as e:
             return AIMessage(content=f"Bir hata oluştu: {e}")
 
-    async def summarizer(self, text_to_summarize: List[Document], length: str = "kısa ve öz") -> BaseMessage:
+    async def summarizer(self, text_to_summarize: List[Document], length: str = "kısa ve öz") -> dict:
         """
         Asenkron olarak verilen metni özetleyen ve yanıtı bir AIMessage nesnesi olarak döndüren metot.
 
@@ -34,7 +34,8 @@ class OllamaClient:
             BaseMessage: Modelden gelen özet yanıtı (AIMessage).
         """
         print(f"\n--- Asenkron Özetleme İşlemi Başladı ---")
-
+        service = PromptService(file_path="prompts/promptOllama.json")
+        await service.load_prompts()
         # 1. Sistem Mesajı (Modeli Yönlendirme)
         system_instruction = prompt_service.get_prompt(
             category="SYSTEM_INSTRUCTIONS",
@@ -47,7 +48,9 @@ class OllamaClient:
             system_instruction = "Lütfen metni kısaca özetle. Metin içeriğinin dışına çıkma ve herhangi bir ek bilgi kullanma"
 
         system_message = SystemMessage(content=system_instruction)
-        combined_text = "\n\n".join([doc.page_content for doc in text_to_summarize])
+        combined_text = "\n\n".join([doc["content"] for doc in text_to_summarize])
+        print("ŞU ANDA BURADASINIZ !!!!!!!!!!!!!!!!!!")
+        print(f"{combined_text}")
 
         # 2. Kullanıcı Mesajı (Özetlenecek Metin)
         human_message = HumanMessage(content=combined_text)
@@ -65,6 +68,6 @@ class OllamaClient:
         print("--- Asenkron Özetleme İşlemi Tamamlandı ---")
 
         # BaseMessage (AIMessage) nesnesini döndür
-        return summary_response
+        return summary_response.content
 
 
