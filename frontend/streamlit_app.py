@@ -118,6 +118,7 @@ if menu == "📄 PDF Özetleme":
             try:
                 result = asyncio.run(pdf_parser.api_process_and_chunk_pdf(tmp_path))
                 chunks = result.get("chunks", [])
+                print(chunks)
             except Exception as e:
                 st.error(f"PDF işlenirken hata: {e}")
                 st.stop()

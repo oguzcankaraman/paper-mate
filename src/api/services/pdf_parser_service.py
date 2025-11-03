@@ -33,7 +33,7 @@ class PdfParserService:
             chunk_data = []
             for chunk in chunks:
                 chunk_data.append({
-                    "content": chunk.page_content,
+                    "page_content": chunk.page_content,
                     "metadata": chunk.metadata,
                     "length": len(chunk.page_content)
                 })
