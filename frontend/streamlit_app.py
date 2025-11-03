@@ -7,6 +7,7 @@ import requests  # Giriş ve kayıt istekleri için gerekli
 
 #  Çalıştırmak için :
 # streamlit run frontend/streamlit_app.py
+#             ^^^
 
 # Proje kökünü (paper-mate klasörünü) sys.path'e ekle
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
