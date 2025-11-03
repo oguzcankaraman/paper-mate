@@ -1,37 +1,22 @@
 import sys
 import os
 import asyncio
-from typing import List
-from pathlib import Path
-
 import streamlit as st
-import requests
-import fitz  # ✅ PDF metin çıkarımı için eklendi (PyMuPDF)
+import requests  # Giriş ve kayıt istekleri için gerekli
 
-# === Ortam hazırlığı ===
-ROOT = Path(__file__).resolve().parent
-SRC = ROOT / "paper-mate-main" / "src"
-if str(SRC) not in sys.path:
-    sys.path.insert(0, str(SRC))
 
-# === Backend endpoint adresleri ===
-API_BASE = "http://localhost:8000"
-REGISTER_URL = f"{API_BASE}/auth/register"
-LOGIN_URL = f"{API_BASE}/auth/login"
-UPLOAD_URL = f"{API_BASE}/files/upload"
-CHAT_URL = f"{API_BASE}/chat"
+#  Çalıştırmak için :
+# streamlit run frontend/streamlit_app.py
 
-# === Backend bağımlılıklarını kontrol et ===
-use_backend_methods = False
-try:
-    from src.pdf_processing.pdf_parser import PdfProcessor
-    from src.ollama.ollamaClass import OllamaClient
-    use_backend_methods = True
-except Exception as e:
-    st.warning(
-        f"⚠️ Backend modülleri yüklenemedi: {e}\n"
-        "OllamaClient veya PdfProcessor sınıfı bulunamazsa özetleme özelliği sınırlı çalışır."
-    )
+# Proje kökünü (paper-mate klasörünü) sys.path'e ekle
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+from src.api.services import (
+    OllamaClientService,
+    PdfParserService,
+    RagService,
+    VectorDatabaseService,
+)
 
 # === Session state ===
 if "logged_in" not in st.session_state:
@@ -50,7 +35,7 @@ st.session_state["email"] = "test@user.com"
 st.title("📘 Akademik Makale Analiz Aracı")
 st.caption("Yapay zeka destekli makale özetleme aracı")
 
-menu = st.sidebar.selectbox("Menü", ["🔑 Giriş / Kayıt", "📄 PDF Özetleme", "🥚 Easter Egg"])
+menu = st.sidebar.selectbox("Menü", ["🔑 Giriş / Kayıt", "📄 PDF Özetleme", "ℹ️ Bilgi Sayfası"])
 
 # ===================================================================
 # 🔑 GİRİŞ / KAYIT SAYFASI
@@ -66,6 +51,7 @@ if menu == "🔑 Giriş / Kayıt":
 
         if st.button("Giriş Yap"):
             try:
+                LOGIN_URL = "http://localhost:8000/auth/login"
                 res = requests.post(LOGIN_URL, json={"email": email, "password": password})
                 if res.status_code == 200:
                     st.session_state["logged_in"] = True
@@ -87,6 +73,7 @@ if menu == "🔑 Giriş / Kayıt":
 
         if st.button("Kayıt Ol"):
             try:
+                REGISTER_URL = "http://localhost:8000/auth/register"
                 res = requests.post(REGISTER_URL, json={"email": reg_email, "password": reg_password})
                 if res.status_code in [200, 201]:
                     st.success("✅ Kayıt başarılı! Giriş yapabilirsiniz.")
@@ -102,7 +89,7 @@ if menu == "🔑 Giriş / Kayıt":
 # ===================================================================
 # 📄 PDF ÖZETLEME SAYFASI
 # ===================================================================
-elif menu == "📄 PDF Özetleme":
+if menu == "📄 PDF Özetleme":
     st.header("PDF Dosyasını Yükle ve Özetle")
 
     if not st.session_state["logged_in"]:
@@ -115,66 +102,28 @@ elif menu == "📄 PDF Özetleme":
     if uploaded_file:
         st.info(f"Yüklendi: {uploaded_file.name}")
 
-        tmp_dir = ROOT / "tmp_uploads"
-        tmp_dir.mkdir(exist_ok=True)
+        from pathlib import Path
+
+        tmp_dir = Path("frontend/tmp_uploads")
+        tmp_dir.mkdir(parents=True, exist_ok=True)
         tmp_path = tmp_dir / uploaded_file.name
+
         with open(tmp_path, "wb") as f:
             f.write(uploaded_file.getbuffer())
 
         if st.button("Özetle"):
             headers = {"Authorization": f"Bearer {st.session_state['token']}"} if st.session_state["token"] else {}
+            pdf_parser = PdfParserService()
             try:
-                with open(tmp_path, "rb") as f:
-                    res = requests.post(UPLOAD_URL, files={"file": f}, headers=headers)
-                if res.status_code == 200:
-                    data = res.json()
-                    summary = data.get("summary") or data.get("summary_text")
-                    if not summary:
-                        st.warning("⚠️ Backend yanıtında 'summary' alanı bulunamadı.")
-                elif res.status_code == 404:
-                    st.warning("⚠️ /files/upload endpointi backend’de tanımlı değil.")
-                else:
-                    st.error(f"Backend yanıtı: {res.status_code} - {res.text}")
-            except requests.exceptions.ConnectionError:
-                st.warning("⚠️ Backend çalışmıyor. Yerel özetleme ile devam edilecek.")
+                result = asyncio.run(pdf_parser.api_process_and_chunk_pdf(tmp_path))
+                chunks = result.get("chunks", [])
             except Exception as e:
-                st.error(f"Hata: {e}")
-
-        # === Fallback Özetleme ===
-        def extract_text_from_pdf(pdf_path):
-            """PDF'den okunabilir metin çıkarır"""
-            text = ""
-            try:
-                with fitz.open(pdf_path) as doc:
-                    for page in doc:
-                        text += page.get_text()
-            except Exception:
-                pass
-            return text.strip()
-
-        if not summary:
-            if use_backend_methods:
-                try:
-                    st.info("Backend özetleme kullanılmaya çalışılıyor (OllamaClient)...")
-                    pdf_proc = PdfProcessor()
-                    docs = pdf_proc.load_pdf(str(tmp_path))
-                    client = OllamaClient()
-                    result_msg = asyncio.run(client.summarizer(docs, "kısa ve öz"))
-                    summary = getattr(result_msg, "content", str(result_msg))
-                except Exception as e:
-                    st.warning(f"OllamaClient çalışmadı ({e}). Basit özetleme devreye girdi.")
-                    text = extract_text_from_pdf(tmp_path)
-                    summary = " ".join(text.split()[:200]) + "..."
-            else:
-                st.warning("⚠️ Ne backend, ne OllamaClient kullanılabiliyor. Basit fallback aktif.")
-                if uploaded_file.name.lower().endswith(".pdf"):
-                    text = extract_text_from_pdf(tmp_path)
-                else:
-                    try:
-                        text = Path(tmp_path).read_text(errors="ignore")
-                    except Exception:
-                        text = ""
-                summary = " ".join(text.split()[:150]) + "..."
+                st.error(f"PDF işlenirken hata: {e}")
+                st.stop()
+            vector_database = VectorDatabaseService()
+            _ = asyncio.run(vector_database.add_documents_for_user("1", chunks))
+            ollama_client = OllamaClientService()
+            summary = asyncio.run(ollama_client.api_summarizer(chunks))
 
         st.subheader("📘 Makale Özeti")
         st.write(summary)
@@ -187,43 +136,30 @@ elif menu == "📄 PDF Özetleme":
             if not user_question.strip():
                 st.warning("Lütfen bir soru girin.")
             else:
-                try:
-
-                    payload = {"summary": summary, "question": user_question}
-                    res = requests.post(CHAT_URL, json=payload)
-                    if res.status_code == 200:
-                        answer = res.json().get("answer", "Yanıt alınamadı.")
-                        if answer.strip().startswith("%PDF"):
-                            st.warning("⚠️ PDF içeriği metne dönüştürülmeden döndü. Backend içeriği PDF olarak gönderiyor.")
-                            answer = "PDF içeriği okunamadı, lütfen backend'in metin dönüşümünü kontrol edin."
-                        st.success(answer)
-                    elif res.status_code == 404:
-                        st.warning("⚠️ /chat endpointi backend'de tanımlı değil.")
-                    else:
-                        st.error(f"Backend yanıtı: {res.status_code}")
-                except requests.exceptions.ConnectionError:
-                    st.warning("⚠️ Backend çalışmıyor, yerel yanıt üretiliyor.")
-                    st.write(f"🧠 Tahmini yanıt: Makale özetine göre — {summary[:100]}...")
+                from src.api.database.crud import create_user, get_user_by_email
+                from src.rag import RAG
+                rag = RAG()
+                test_email = "test@example.com"
+                user = get_user_by_email(rag.db, test_email)
+                if not user:
+                    user = create_user(rag.db, "Test User", test_email, "test123")
+                rag = RagService()
+                result = asyncio.run(rag.make_conversation(user_question.strip(), 1))
+                print(result)
+                st.write(result)
 
 # ===================================================================
-# Easter Egg SAYFASI
+# Bilgi SAYFASI
 # ===================================================================
 else:
     st.header("Sistem Bilgisi ve Durum")
     st.markdown(
         """
-        **Bu arayüz ne yapar:**
-        - Kullanıcı girişi ve kayıt işlemleri (/auth/register, /auth/login)
-        - PDF yükleme ve backend üzerinden özet alma (/files/upload)
-        - Makale özeti üzerinden sohbet (/chat)
-
-        **Eksik Olanlar (Backend'de tamamlanmalı):**
-        - `/auth/register` — kullanıcıyı DB'ye kaydeder  
-        - `/auth/login` — kullanıcıyı doğrular ve token döner  
-        - `/files/upload` — PDF alır, özet üretir  
-        - `/chat` — özet üzerinden soru-cevap sağlar  
+        **Bu arayüz neler yapar:**
+        - Kullanıcı girişi ve kayıt işlemleri (AI, kullanıcıların soru ve isteklerini hatırlayacaktır.)
+        - PDF yükleyerek AI destekli kolay ve hızlı özet alma
+        - Makale özeti sonrası açılan sohbet penceresi ile soru-cevap ve konuyla alakalı diğer kaynaklara erişim imkanı
         """
     )
     st.divider()
     st.write("Kullanıcı:", st.session_state.get("email", "—"))
-    st.write("Backend modülleri yüklü mü:", "✅" if use_backend_methods else "❌")
