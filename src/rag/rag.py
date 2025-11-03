@@ -98,11 +98,11 @@ class RAG:
 
             context_text = "\n".join([doc.page_content for doc in state["context"]])
 
+            # Veritabanından mevcut mesajları al
             db_messages = get_messages_by_conversation(self.db, state["conversation_id"])
-            messages = state.get("messages", [])
 
-            if not messages:
-                messages.append(SystemMessage(content=self.system_prompt))
+            messages = []
+            messages.append(SystemMessage(content=self.system_prompt))
 
             if context_text:
                 messages.append(SystemMessage(content=f"Context: {context_text}"))
@@ -116,19 +116,13 @@ class RAG:
                 elif role == "assistant":
                     messages.append(AIMessage(content=content))
 
-            # Yeni kullanıcı mesajını ekle
             create_message(self.db, state["conversation_id"], "user", state["question"])
             messages.append(HumanMessage(content=state['question']))
 
-            # LLM'den cevap al
             answer = await self.llm.ainvoke(messages)
 
-            # Cevabı kaydet
             create_message(self.db, state["conversation_id"], "assistant", answer.content)
             update_conversation(self.db, state["conversation_id"])
-
-            # State'e ekle
-            messages.append(answer)
 
             return {"answer": str(answer.content), "messages": messages}
         except Exception as e:
@@ -157,13 +151,20 @@ class RAG:
         if not user_id:
             raise ValueError("User ID cannot be empty")
 
-        # Yeni conversation oluştur
         if conversation_id is None:
-            conversation = create_conversation(self.db, user_id)
-            if not conversation:
-                raise ValueError(f"User with ID {user_id} not found")
-            conversation_id = conversation.id
-            logger.info(f"Created new conversation: {conversation_id}")
+            from src.api.database.crud import get_conversations_by_user
+
+            existing_conversations = get_conversations_by_user(self.db, user_id)
+
+            if existing_conversations:
+                conversation_id = existing_conversations[0].id
+                logger.info(f"Using existing conversation: {conversation_id}")
+            else:
+                conversation = create_conversation(self.db, user_id)
+                if not conversation:
+                    raise ValueError(f"User with ID {user_id} not found")
+                conversation_id = conversation.id
+                logger.info(f"Created new conversation: {conversation_id}")
 
         if self.app is None:
             self._compile_graph()
@@ -175,19 +176,18 @@ class RAG:
                 "question": question,
                 "context": [],
                 "answer": "",
-                "user_id": str(user_id),  # VectorStore için string
+                "user_id": str(user_id),
                 "conversation_id": conversation_id
             },
-            config={"configurable": {"thread_id": str(conversation_id)}}  # conversation_id kullan!
+            config={"configurable": {"thread_id": str(conversation_id)}}
         )
-
 
 
 import asyncio
 
 
 async def main():
-    from src.api.database.crud import create_user, get_user_by_email, get_conversations_by_user, get_messages_by_conversation
+    from src.api.database.crud import create_user, get_user_by_email, get_messages_by_conversation
 
     rag = RAG()
 
@@ -199,44 +199,31 @@ async def main():
     print(f"User ID: {user.id}")
     print("-" * 50)
 
-    # ✅ SON CONVERSATION'I BUL
-    existing_conversations = get_conversations_by_user(rag.db, user.id)
-    conv_id = existing_conversations[0].id if existing_conversations else None
-
-    if conv_id:
-        print(f"📌 Mevcut conversation kullanılıyor: {conv_id}")
-    else:
-        print("📌 Yeni conversation oluşturulacak")
-
-    # İLK SORU
     result1 = await rag.run_workflow(
         "Hi, I am Oğuz and I am 20 years old",
-        user_id=user.id,
-        conversation_id=conv_id  # ← SON CONVERSATION'I KULLAN
+        user_id=user.id
     )
     conv_id = result1["conversation_id"]
     print(f"Answer 1: {result1['answer']}\n")
 
-    # ✅ VERİTABANINDAKİ MESAJLARI KONTROL ET
     messages = get_messages_by_conversation(rag.db, conv_id)
     print("📌 Veritabanındaki Mesajlar:")
     for msg in messages:
         print(f"  [{msg.role}]: {msg.content[:50]}...")
     print("-" * 50)
 
-    # İKİNCİ SORU
     result2 = await rag.run_workflow(
         "What's my name and age?",
         user_id=user.id,
-        conversation_id=conv_id  # ← AYNI CONVERSATION
+        conversation_id=conv_id
     )
     print(f"Answer 2: {result2['answer']}")
 
-    # ✅ GÜNCEL MESAJLARI KONTROL ET
     messages = get_messages_by_conversation(rag.db, conv_id)
     print("\n📌 Güncellenmiş Veritabanı Mesajları:")
     for msg in messages:
         print(f"  [{msg.role}]: {msg.content[:50]}...")
+
 
 
 
